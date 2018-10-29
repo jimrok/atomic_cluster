@@ -1,0 +1,50 @@
+plugins {
+  id 'com.github.johnrengelman.plugin-shadow' version '2.0.2'
+  id 'java'
+}
+
+
+apply plugin: 'java'
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+
+    compile group: 'com.typesafe.akka', name: 'akka-slf4j_2.12', version: '2.5.17'
+    compile group: 'com.typesafe.akka', name: 'akka-cluster-sharding_2.12', version: '2.5.17'
+    // https://mvnrepository.com/artifact/com.github.dnvriend/akka-persistence-inmemory
+    compile group: 'com.github.dnvriend', name: 'akka-persistence-inmemory_2.12', version: '2.5.1.1'
+
+
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
+    compile group: 'ch.qos.logback', name: 'logback-access', version: '1.1.11'
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.3.22.v20171030'
+    compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: '9.3.22.v20171030'
+
+}
+
+// cmd: gradle clean shadowJar
+// 
+shadowJar {
+    
+    baseName = 'akka-cluster'
+    mergeServiceFiles()
+    
+
+    configurations = [project.configurations.compile]
+    relocate ('org', 'org')
+    relocate ('akka', 'akka')
+    relocate ('io', 'io')
+    relocate ('com', 'com')
+    relocate ('org', 'org')
+    relocate ('scala', 'scala')
+    relocate ('javax', 'javax')
+    relocate ('jnr', 'jnr')
+    relocate ('ch.qos.logback', 'ch.qos.logback')
+
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
+        resource = 'reference.conf'
+    }
+}

@@ -1,0 +1,6 @@
+#application config
+development:
+  enable_starttls_auto : true
+  node_id: "server1"
+production:
+  apple_certificate_passphrase: "xiaoxiaoqiquan"

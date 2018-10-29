@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>cluster status</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="render" content="webkit|ie-comp|ie-stand">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <style type="text/css">
+    
+    html,
+    body {
+        margin: auto;
+        padding: 2rem;
+        font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
+        font-size: 10px;
+    }
+    
+    .form-inline {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-flow: row wrap;
+        flex-flow: row wrap;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+    
+    .form-control-plaintext {
+        display: block;
+        width: 100%;
+        padding-top: .375rem;
+        padding-bottom: .375rem;
+        margin-bottom: 0;
+        line-height: 1.5;
+        color: #212529;
+        background-color: transparent;
+        border: solid transparent;
+        border-width: 1px 0;
+    }
+    
+    .form-group {
+        display: flex;
+        flex: 0 0 auto;
+        flex-flow: row wrap;
+        align-items: center;
+        padding: 0 1rem;
+    }
+    
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: .375rem .75rem;
+        font-size: 1.6rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    
+    .btn-primary {
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: .375rem .75rem;
+        font-size: 1.6rem;
+        margin: 0 1rem;
+        line-height: 1.5;
+        border-radius: .25rem;
+        transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+</head>
+
+<body>
+	<div>
+	<div id="note" class="wrapper"></div>
+        <form id="frm_message" class="form-inline">
+            
+            <div class="form-group">
+                <input type="text" class="form-control" id="user_id" name="user_id" placeholder="UserId">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="f_message" name="message" placeholder="Message">
+            </div>
+            <button id="btn_send" type="button" class="btn btn-primary">发送</button>
+            
+        </form>
+    </div>
+    <div class="wrapper">
+        #foreach( $item in $nodes)
+        <h1>#if($item.isLocalNode() == true) *#end node: ${item.address}, status:${item.status}</h1> 
+        #end
+    </div>
+    
+</body>
+
+</html>
+<script type="text/javascript">
+$(document).ready(function(){
+  $("#btn_send").click(function(){
+     $.ajax({
+        type: 'POST',
+        url: "/messages",
+        data: $("#frm_message").serialize(),
+        success: function(data, textStatus, jqXHR){
+          $('#note').text('已发送: ' + $('#f_message').val());
+        },
+        error: function(jqXHR, textStatus, errorThrown){
+        }});
+  });
+});
+</script>

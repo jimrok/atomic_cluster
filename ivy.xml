@@ -1,0 +1,44 @@
+<ivy-module version="2.0">
+	<info organisation="com.myspotontheweb" module="demo" />
+	<configurations>
+		<conf name="_jars" description="Jars used for business logic" />
+	</configurations>
+	<dependencies>
+		<dependency org="org.eclipse.jetty" name="jetty-server"
+			rev="9.3.24.v20180605" conf="*->default" />
+
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-server -->
+		<dependency org="org.eclipse.jetty.websocket" name="websocket-server"
+			rev="9.3.24.v20180605" conf="*->default" />
+
+		<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-actor -->
+		<dependency org="com.typesafe.akka" name="akka-actor_2.12" rev="2.5.17" />
+
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind"
+			rev="2.8.11.1" conf="*->default" />
+		<!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
+		<dependency org="org.yaml" name="snakeyaml" rev="1.19" />
+		<!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
+		<dependency org="ch.qos.logback" name="logback-classic"
+			rev="1.1.11" conf="*->default" />
+
+		<!-- https://mvnrepository.com/artifact/org.apache.velocity/velocity -->
+		<dependency org="org.apache.velocity" name="velocity" rev="1.7"
+			conf="*->default" />
+
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.25" />
+
+			
+		<!-- https://mvnrepository.com/artifact/io.atomix/atomix -->
+        <dependency org="io.atomix" name="atomix" rev="3.0.7"/>
+
+		<!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
+		<dependency org="com.github.ben-manes.caffeine" name="caffeine" rev="2.6.2" />
+		
+
+
+	</dependencies>
+</ivy-module>
