@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import ewhine.actor.message.GetShardHome;
 import ewhine.actor.message.ShardInitialized;
 import ewhine.actor.message.StartEntity;
 import ewhine.actor.message.Terminated;
 import ewhine.akka.cluster.sharding.MessageExtractor;
-import ewhine.tools.SU;
 
 public class ShardRegion extends AbstractActor {
 	final static private Logger LOG = LoggerFactory.getLogger(ShardRegion.class
@@ -87,30 +87,36 @@ public class ShardRegion extends AbstractActor {
 			String shard_id = restart_shard.getShardId();
 			ActorRef region_ref = regionByShard.get(shard_id);
 			if (region_ref == null) {
-
+				
 				if (!shardBuffers.contains(shard_id)) {
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("Request shard [{}] home. Coordinator [{}]",
-								shard_id, coordinator);
-					}
-					// coordinator
-					// TODO rebuild code.
+					// 需要刷新一下coordinator,等待shard的actor启动就绪
+					LOG.debug("Request shard [{}] home. Coordinator [{}]",shard_id,coordinator);
+					coordinator.forEach(x -> {
+						x.tell(new GetShardHome(shard_id), getSelf());
+					});
 				}
+				List<BufferdMessage> buf = shardBuffers.getOrEmpty(shard_id);
+				LOG.debug("Buffer message for shard [{}]. Total [{}] buffered messages.", shard_id, buf.size() + 1);
+	            shardBuffers.append(shard_id, msg, snd);
+
+				
 
 			} else if (region_ref.equals(getSelf())) {
 				// 如果启动的shard就是当前的region管理的
-				ActorRef shard_ref = getShard(shard_id);
+				getShard(shard_id);
+				
 			}
 			return;
 		}
 
 		String shard_id = extractShardId(msg);
+		
 		if (shard_id == null || shard_id.length() == 0) {
 			if (LOG.isWarnEnabled()) {
 				LOG.warn("Shard must not be empty, dropping message [{}]", msg
 						.getClass().getName());
 			}
-			// 不是一个正常的消息，扔给司信队列
+			// 不是一个正常的消息，扔给死信队列
 			getContext().system().deadLetters().tell(msg, getSelf());
 			return;
 		}
@@ -120,7 +126,10 @@ public class ShardRegion extends AbstractActor {
 
 			if (!shardBuffers.contains(shard_id)) {
 				// 需要刷新一下coordinator,等待shard的actor启动就绪
-
+				LOG.debug("Request shard [{}] home. Coordinator [{}]",shard_id,coordinator);
+				coordinator.forEach(x -> {
+					x.tell(new GetShardHome(shard_id), getSelf());
+				});
 			}
 
 			bufferMessage(shard_id, msg, snd);
@@ -130,8 +139,9 @@ public class ShardRegion extends AbstractActor {
 			if (region_ref.equals(getSelf())) {
 				// 本地的消息
 				ActorRef shard_ref = getShard(shard_id);
-				if (shard_ref != null) {
+				if (shard_ref != null) { //Some(share_id)
 					if (shardBuffers.contains(shard_id)) {
+						//现在发往一个Shard的消息是顺序缓存的，现在开始发送了。
 						bufferMessage(shard_id, msg, snd);
 						deliverBufferedMessages(shard_id, shard_ref);
 					} else {
@@ -144,6 +154,7 @@ public class ShardRegion extends AbstractActor {
 				}
 			} else {
 				// 远程的region,把消息发送给这个远程的region ？这个合适吗？
+				LOG.debug("Forwarding request for shard [{}] to [{}]", shard_id, region_ref);
 				region_ref.tell(msg, snd);
 
 			}
@@ -151,8 +162,9 @@ public class ShardRegion extends AbstractActor {
 
 	}
 
+	
 	private void deliverBufferedMessages(String shard_id, ActorRef receiver) {
-		// TODO 把shardBuffer中的消息发送出去
+		// TODO 把shardBuffer中的消息发送出去，目前的buffer的实现是Message留在内存中，存在溢出的问题。
 
 		if (shardBuffers.contains(shard_id)) {
 			List<BufferdMessage> buf = shardBuffers.getOrEmpty(shard_id);
